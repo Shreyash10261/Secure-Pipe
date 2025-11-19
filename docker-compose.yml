@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-
   sonarqube:
     image: sonarqube:lts-community
     container_name: sonarqube
@@ -10,6 +9,3 @@ services:
     environment:
       - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
     restart: always
-
-volumes:
-  jenkins_home:
