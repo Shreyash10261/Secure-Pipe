@@ -1,35 +1,50 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "node18"
+    environment {
+        NODEJS_HOME = tool 'node18'
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout SCM') {
             steps {
-                git url: 'https://github.com/Shreyash10261/Secure-Pipe.git', branch: 'main'
+                checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh """
+                    export PATH=$NODEJS_HOME/bin:$PATH
+                    npm install
+                """
             }
         }
 
         stage('SonarQube Scan') {
+            environment {
+                SCANNER_HOME = tool 'sonar-scanner'
+            }
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh 'sonar-scanner'
+                    sh """
+                       ${SCANNER_HOME}/bin/sonar-scanner \
+                       -Dsonar.projectKey=SecurePipe \
+                       -Dsonar.sources=. \
+                       -Dsonar.host.url=http://sonarqube:9000 \
+                       -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t securepipe-app .'
+                sh """
+                    docker build -t securepipe-app .
+                """
             }
         }
     }
