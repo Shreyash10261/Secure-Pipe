@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs "node18"
+    }
+
     stages {
-        
+
         stage('Checkout Code') {
             steps {
                 git url: 'https://github.com/Shreyash10261/Secure-Pipe.git', branch: 'main'
